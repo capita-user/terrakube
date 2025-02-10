@@ -601,22 +601,29 @@ public class RemoteTfeService {
         String terraformStateJson = new String(Base64.getMimeDecoder().decode(decodedBytesJson));
 
         // create dummy job
-        Job job = new Job();
-        job.setWorkspace(workspace);
-        job.setOrganization(workspace.getOrganization());
-        job.setStatus(JobStatus.completed);
-        job.setRefresh(true);
-        job.setPlanChanges(true);
-        job.setRefreshOnly(false);
-        job = jobRepository.save(job);
+        Job job;
+        if (stateData.getData().getRelationships() != null) {
+            job = jobRepository.getReferenceById(
+                Integer.valueOf(stateData.getData().getRelationships().getRun().getData().getId())
+            );
+        } else {
+            job = new Job();
+            job.setWorkspace(workspace);
+            job.setOrganization(workspace.getOrganization());
+            job.setStatus(JobStatus.completed);
+            job.setRefresh(true);
+            job.setPlanChanges(true);
+            job.setRefreshOnly(false);
+            job = jobRepository.save(job);
 
-        // dummy step
-        Step step = new Step();
-        step.setJob(job);
-        step.setName("Dummy State Uploaded");
-        step.setStatus(JobStatus.completed);
-        step.setStepNumber(100);
-        stepRepository.save(step);
+            // dummy step
+            Step step = new Step();
+            step.setJob(job);
+            step.setName("Dummy State Uploaded");
+            step.setStatus(JobStatus.completed);
+            step.setStepNumber(100);
+            stepRepository.save(step);
+        }
 
         // create dummy history
         History history = new History();

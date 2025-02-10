@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.terrakube.api.plugin.security.state.StateService;
+import org.terrakube.api.plugin.state.model.state.PlanStatePath;
+import org.terrakube.api.plugin.state.model.state.PlanStatePathData;
 import org.terrakube.api.plugin.storage.StorageTypeService;
 import org.terrakube.api.repository.ArchiveRepository;
 import org.terrakube.api.repository.HistoryRepository;
@@ -58,6 +61,16 @@ public class TerraformStateController {
             @PathVariable("workspaceId") String workspaceId, @PathVariable("jobId") String jobId,
             @PathVariable("stepId") String stepId) {
         return storageTypeService.getTerraformPlan(organizationId, workspaceId, jobId, stepId);
+    }
+
+    @PutMapping(value = "/organization/{organizationId}/workspace/{workspaceId}/jobId/{jobId}/step/{stepId}/terraform.tfstate", produces = "application/vnd.api+json")
+    public ResponseEntity<String> uploadTerraformPlanBinary(HttpServletRequest httpServletRequest,
+            @PathVariable("organizationId") String organizationId, @PathVariable("workspaceId") String workspaceId,
+            @PathVariable("jobId") String jobId, @PathVariable("stepId") String stepId) throws IOException {
+        log.info("uploadTerraformPlanBinary for: {}", workspaceId);
+        String path = storageTypeService.uploadTerraformPlan(organizationId, workspaceId, jobId, stepId, httpServletRequest.getInputStream().readAllBytes());
+
+        return ResponseEntity.status(201).body("");
     }
 
     @GetMapping(value = "/organization/{organizationId}/workspace/{workspaceId}/state/{stateFilename}.json", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.StringUtils;
+import org.springframework.security.core.parameters.P;
 import org.terrakube.api.plugin.storage.StorageTypeService;
 
 import java.io.IOException;
@@ -49,6 +50,21 @@ public class GcpStorageTypeServiceImpl implements StorageTypeService {
             log.error(e.getMessage());
         }
         return response;
+    }
+
+    @Override
+    public void uploadStepOutput(String organizationId, String jobId, String stepId, byte[] file) {
+        BlobId blobJsonId = BlobId.of(
+            bucketName,
+            String.format(GCP_LOCATION_OUTPUT, organizationId, jobId, stepId)
+        );
+        try {
+            log.info("creating new  step output...");
+            BlobInfo blobJsonStateHistory = BlobInfo.newBuilder(blobJsonId).build();
+            storage.create(blobJsonStateHistory, file);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
     }
 
     @Override
@@ -147,6 +163,30 @@ public class GcpStorageTypeServiceImpl implements StorageTypeService {
             log.error(e.getMessage());
         }
 
+    }
+
+    @Override
+    public String uploadTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId, byte[] terraformPlan) {
+        String planKey = String.format(GCP_STATE_LOCATION, organizationId, workspaceId, jobId, stepId);
+
+        BlobId blobId = BlobId.of(bucketName, planKey);
+        Blob blob = storage.get(blobId);
+
+        if (blob != null) {
+            log.info("State does exists...");
+            try {
+                WritableByteChannel channel = blob.writer();
+                channel.write(ByteBuffer.wrap(terraformPlan));
+                channel.close();
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
+        } else {
+            log.info("Creating new state...");
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+            storage.create(blobInfo, terraformPlan);
+        }
+        return String.format("https://storage.cloud.google.com/%s/%s", bucketName, planKey);
     }
 
     @Override

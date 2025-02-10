@@ -20,6 +20,7 @@ import org.terrakube.executor.plugin.tfstate.azure.AzureTerraformStateProperties
 import org.terrakube.executor.plugin.tfstate.gcp.GcpTerraformStateImpl;
 import org.terrakube.executor.plugin.tfstate.gcp.GcpTerraformStateProperties;
 import org.terrakube.executor.plugin.tfstate.local.LocalTerraformStateImpl;
+import org.terrakube.executor.plugin.tfstate.api.ApiTerraformStateImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -146,6 +147,12 @@ public class TerraformStateAutoConfiguration {
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }
+                    break;
+                case ApiTerraformStateImpl:
+                    terraformState = ApiTerraformStateImpl.builder()
+                            .terrakubeClient(terrakubeClient)
+                            .terraformStatePathService(terraformStatePathService)
+                            .build();
                     break;
                 default:
                     terraformState = LocalTerraformStateImpl.builder()
