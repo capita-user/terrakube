@@ -1,5 +1,6 @@
 package org.terrakube.api.plugin.vcs.provider.azdevops;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.identity.DefaultAzureCredential;
@@ -22,6 +23,8 @@ import java.util.Collections;
 @Service
 @Slf4j
 public class AzDevOpsTokenService {
+    @Autowired
+    private WebClient.Builder webClientBuilder; // Use Spring-managed WebClient.Builder
 
     @Value("${org.terrakube.hostname}")
     private String hostname;
@@ -91,7 +94,7 @@ public class AzDevOpsTokenService {
 
 
     private WebClient getWebClient(String endpoint){
-        return WebClient.builder()
+        return webClientBuilder
                 .baseUrl((endpoint != null)? endpoint : DEFAULT_ENDPOINT)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
