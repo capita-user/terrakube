@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.Base64;
 import java.util.stream.Stream;
@@ -164,10 +165,12 @@ public class ApiTerraformStateImpl implements TerraformState {
     @Override
     public void saveStateJson(TerraformJob terraformJob, String applyJSON, String rawState) {
         log.info("Saving state json to terrakube API");
+        log.info("Raw state length: {}", rawState.length());
         // Attributes
         CreateStateVersionAttributes stateAttributes = new CreateStateVersionAttributes();
-        stateAttributes.setJsonState(Base64.getEncoder().encodeToString(applyJSON.getBytes()));
-        stateAttributes.setState(Base64.getEncoder().encodeToString(rawState.getBytes()));
+        stateAttributes.setJsonState(Base64.getEncoder().encodeToString(applyJSON.getBytes(StandardCharsets.UTF_8)));
+        stateAttributes.setState(Base64.getEncoder().encodeToString(rawState.getBytes(StandardCharsets.UTF_8)));
+        log.info("Raw state length encoded: {}", stateAttributes.getState());
 
         // Relationship
         Resource runResource = new Resource();

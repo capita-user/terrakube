@@ -308,6 +308,9 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
         Boolean showJsonState = terraformClient.show(terraformProcessData, applyJSON, applyJSON).get();
         Boolean showRawState = terraformClient.statePull(terraformProcessData, rawStateJSON, rawStateJSON).get();
 
+        // TODO: rawStateJSON is getting truncated, need to fix this
+        Thread.sleep(5000);
+
         if (Boolean.TRUE.equals(showRawState))
             terraformJob.setRawState(rawStateJSON.toString());
 
