@@ -79,15 +79,14 @@ public class ExecutorJobImpl implements ExecutorJob {
                 break;
         }
 
-
-        executionSuccess = terraformResult.isSuccessfulExecution();
-        updateJobStatus.setCompletedStatus(executionSuccess, terraformResult.isPlan, terraformResult.getExitCode(), terraformJob, terraformResult.getOutputLog(), terraformResult.getOutputErrorLog(), terraformResult.getPlanFile(), commitId);
-
         try {
             FileUtils.cleanDirectory(terraformWorkingDir);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
+
+        executionSuccess = terraformResult.isSuccessfulExecution();
+        updateJobStatus.setCompletedStatus(executionSuccess, terraformResult.isPlan, terraformResult.getExitCode(), terraformJob, terraformResult.getOutputLog(), terraformResult.getOutputErrorLog(), terraformResult.getPlanFile(), commitId);
 
         if (executorFlagsProperties.isEphemeral())
             shutdownService.shutdownApplication();
