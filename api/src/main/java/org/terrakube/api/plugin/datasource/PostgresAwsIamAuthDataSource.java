@@ -18,7 +18,7 @@ public class PostgresAwsIamAuthDataSource extends PGSimpleDataSource {
     private Region awsRegion;
     private String authToken;
     private long lastTokenRefresh = 0;
-    private static final long TOKEN_EXPIRY_TIME = 10L * 60L * 1000L;
+    private static final long TOKEN_EXPIRY_TIME = 5L * 60L * 1000L;
 
     @Override
     public Connection getConnection(String user, String password) throws SQLException {

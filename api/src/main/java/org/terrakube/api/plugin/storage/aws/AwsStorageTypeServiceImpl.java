@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.sshd.common.util.io.IoUtils;
 import org.terrakube.api.plugin.storage.StorageTypeService;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -14,6 +15,7 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -68,9 +70,28 @@ public class AwsStorageTypeServiceImpl implements StorageTypeService {
         log.info("Upload Object {} completed", blobKey);
     }
 
+    private void uploadBytesToBucket(String bucketName, String blobKey, byte[] data){
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(blobKey)
+                .build();
+
+        s3client.putObject(putObjectRequest, RequestBody.fromBytes(data));
+        log.info("Upload Object {} completed", blobKey);
+    }
+
     @Override
     public byte[] getStepOutput(String organizationId, String jobId, String stepId) {
         return downloadObjectFromBucket(bucketName, String.format(BUCKET_LOCATION_OUTPUT, organizationId, jobId, stepId));
+    }
+
+    @Override
+    public void uploadStepOutput(String organizationId, String jobId, String stepId, byte[] file) {
+        uploadStringToBucket(
+                bucketName,
+                String.format(BUCKET_LOCATION_OUTPUT, organizationId, jobId, stepId),
+                IOUtils.toString(file, StandardCharsets.UTF_8.name())
+        );
     }
 
     @Override
@@ -103,6 +124,23 @@ public class AwsStorageTypeServiceImpl implements StorageTypeService {
         log.info("terraformRawStateFile: {}", rawBlobKey);
         uploadStringToBucket(bucketName, blobKey, terraformState);
         uploadStringToBucket(bucketName, rawBlobKey, terraformState);
+    }
+
+    @Override
+    public String uploadTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId, byte[] terraformPlan) {
+        String blobKey = String.format("tfstate/%s/%s/%s/%s/terraformLibrary.tfPlan", organizationId, workspaceId, jobId, stepId);
+
+        log.info(String.format("bytes: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X", terraformPlan[0], terraformPlan[1], terraformPlan[2], terraformPlan[3], terraformPlan[4], terraformPlan[5], terraformPlan[6], terraformPlan[7]));
+        uploadBytesToBucket(bucketName, blobKey, terraformPlan);
+
+        GetUrlRequest getUrlRequest = GetUrlRequest.builder()
+                .bucket(bucketName)
+                .key(blobKey)
+                .build();
+
+        URL url = s3client.utilities().getUrl(getUrlRequest);
+
+        return url.toExternalForm();
     }
 
     @Override

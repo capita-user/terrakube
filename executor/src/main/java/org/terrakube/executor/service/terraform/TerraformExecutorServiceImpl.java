@@ -42,21 +42,7 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
     ScriptEngineService scriptEngineService;
     RedisTemplate redisTemplate;
 
-    LogsService logsService;
-
-    private void setupConsumerGroups(String jobId) {
-        try {
-            redisTemplate.opsForStream().createGroup(jobId, "CLI");
-        } catch (Exception ex) {
-            log.error(ex.getMessage());
-        }
-
-        try {
-            redisTemplate.opsForStream().createGroup(jobId, "UI");
-        } catch (Exception ex) {
-            log.error(ex.getMessage());
-        }
-    }
+    ProcessLogs logsService;
 
     public File getTerraformWorkingDir(TerraformJob terraformJob, File workingDirectory) throws IOException {
         File terraformWorkingDir = workingDirectory;
@@ -76,7 +62,7 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
 
     @Override
     public ExecutorJobResult plan(TerraformJob terraformJob, File workingDirectory, boolean isDestroy) {
-        setupConsumerGroups(terraformJob.getJobId());
+        logsService.setupConsumerGroups(terraformJob.getJobId());
         ExecutorJobResult result;
 
         TextStringBuilder jobOutput = new TextStringBuilder();
@@ -146,7 +132,7 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
 
     @Override
     public ExecutorJobResult apply(TerraformJob terraformJob, File workingDirectory) {
-        setupConsumerGroups(terraformJob.getJobId());
+        logsService.setupConsumerGroups(terraformJob.getJobId());
         ExecutorJobResult result;
 
         TextStringBuilder terraformOutput = new TextStringBuilder();
@@ -206,7 +192,7 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
 
     @Override
     public ExecutorJobResult destroy(TerraformJob terraformJob, File workingDirectory) {
-        setupConsumerGroups(terraformJob.getJobId());
+        logsService.setupConsumerGroups(terraformJob.getJobId());
         ExecutorJobResult result;
 
         TextStringBuilder jobOutput = new TextStringBuilder();
@@ -320,6 +306,9 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
         terraformProcessData.setTerraformEnvironmentVariables(new HashMap());
         Boolean showJsonState = terraformClient.show(terraformProcessData, applyJSON, applyJSON).get();
         Boolean showRawState = terraformClient.statePull(terraformProcessData, rawStateJSON, rawStateJSON).get();
+
+        // TODO: rawStateJSON is getting truncated, need to fix this
+        Thread.sleep(5000);
 
         if (Boolean.TRUE.equals(showRawState))
             terraformJob.setRawState(rawStateJSON.toString());
