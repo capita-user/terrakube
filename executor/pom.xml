@@ -8,6 +8,13 @@
 		<version>${revision}</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
+	<repositories>
+		<repository>
+			<id>local-maven-repo</id>
+			<url>file://${user.home}/.m2/repository</url>
+		</repository>
+	</repositories>
+
 	<groupId>org.terrakube.executor</groupId>
 	<artifactId>executor</artifactId>
 	<version>${revision}</version>
@@ -17,7 +24,7 @@
 		<java.version>17</java.version>
 		<commons-text.version>1.13.1</commons-text.version>
 		<terraform-spring-boot-starter.version>0.16.2</terraform-spring-boot-starter.version>
-		<terrakube-client-starter.version>0.15.1</terrakube-client-starter.version>
+		<terrakube-client-starter.version>0.15.2</terrakube-client-starter.version>
 		<commons-io.version>2.19.0</commons-io.version>
 		<commons-codec>1.18.0</commons-codec>
 		<okhttp.version>4.12.0</okhttp.version>

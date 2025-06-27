@@ -2,12 +2,18 @@ package org.terrakube.api.plugin.storage.controller;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.terrakube.api.plugin.state.model.terraform.TfOutputRequest;
+import org.terrakube.api.plugin.state.model.terraform.TfOutputUrl;
 import org.terrakube.api.plugin.storage.StorageTypeService;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.terrakube.api.plugin.streaming.StreamingService;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @AllArgsConstructor
@@ -36,5 +42,25 @@ public class TerraformOutputController {
             return storageTypeService.getStepOutput(organizationId, jobId, stepId);
         }
 
+    }
+
+    @Transactional
+    @PostMapping(
+            value = "/organization/{organizationId}/job/{jobId}/step/{stepId}",
+            consumes = "application/vnd.api+json"
+    )
+    public ResponseEntity<TfOutputUrl> uploadFile(
+            @PathVariable("organizationId") String organizationId,
+            @PathVariable("jobId") String jobId,
+            @PathVariable("stepId") String stepId,
+            @RequestBody TfOutputRequest tfOutput) {
+
+        log.info("Uploading file for org: {}, job: {}, step: {}", organizationId, jobId, stepId);
+
+        storageTypeService.uploadStepOutput(organizationId, jobId, stepId, tfOutput.getData().getBytes());
+
+        TfOutputUrl response = new TfOutputUrl();
+        response.setData(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString());
+        return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
     }
 }

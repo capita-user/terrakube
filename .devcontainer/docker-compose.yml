@@ -292,6 +292,25 @@ services:
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=P@ssw0rd!
+  squid:
+    image: sameersbn/squid:latest
+    container_name: squid
+    networks:
+      default:
+    ports:
+      - "3128:3128"
+    environment:
+       - SQUID_USERNAME=proxyuser
+       - SQUID_PASSWORD=proxypass
+       - SQUID_AUTH_CONFIG=/etc/squid/passwords
+       - SQUID_AUTH_TYPE=basic
+       - SQUID_AUTH_REALM=Squid proxy
+       - SQUID_AUTH_USERS=proxyuser:proxypass
+       - SQUID_CACHE_MEM=256 MB
+       - SQUID_CACHE_DISK=1000 MB
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+    restart: unless-stopped
 volumes:
   minio_data:
   redis_data:

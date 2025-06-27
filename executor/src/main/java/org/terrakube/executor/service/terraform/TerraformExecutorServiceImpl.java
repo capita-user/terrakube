@@ -42,7 +42,7 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
     ScriptEngineService scriptEngineService;
     RedisTemplate redisTemplate;
 
-    LogsService logsService;
+    ProcessLogs logsService;
 
     private void setupConsumerGroups(String jobId) {
         try {
@@ -320,6 +320,9 @@ public class TerraformExecutorServiceImpl implements TerraformExecutor {
         terraformProcessData.setTerraformEnvironmentVariables(new HashMap());
         Boolean showJsonState = terraformClient.show(terraformProcessData, applyJSON, applyJSON).get();
         Boolean showRawState = terraformClient.statePull(terraformProcessData, rawStateJSON, rawStateJSON).get();
+
+        // TODO: rawStateJSON is getting truncated, need to fix this
+        Thread.sleep(5000);
 
         if (Boolean.TRUE.equals(showRawState))
             terraformJob.setRawState(rawStateJSON.toString());

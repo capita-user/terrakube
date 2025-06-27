@@ -3,6 +3,8 @@ package org.terrakube.executor.configuration;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.terrakube.executor.plugin.tfoutput.configuration.TerraformOutputProperties;
+import org.terrakube.executor.plugin.tfoutput.configuration.TerraformOutputType;
 import org.terrakube.executor.plugin.tfstate.configuration.TerraformStateProperties;
 import org.terrakube.executor.plugin.tfstate.configuration.TerraformStateType;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +16,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class LocalConfiguration implements WebMvcConfigurer {
 
+    TerraformOutputProperties terraformOutputProperties;
     TerraformStateProperties terraformStateProperties;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        log.info("State/Output Enabled: {}", terraformStateProperties.getType());
+        log.info("Output Enabled: {}", terraformOutputProperties.getType());
+        log.info("State Enabled: {}", terraformStateProperties.getType());
 
-        if (terraformStateProperties.getType().equals(TerraformStateType.LocalTerraformStateImpl))
+        if (terraformOutputProperties.getType().equals(TerraformOutputType.LocalTerraformOutputImpl))
             registry.addResourceHandler("/output/**")
                     .addResourceLocations("file:" + FileUtils.getUserDirectoryPath() + "/.terraform-spring-boot/local/output/");
 
