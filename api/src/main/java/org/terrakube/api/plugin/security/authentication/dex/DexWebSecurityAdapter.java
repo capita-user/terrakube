@@ -73,6 +73,8 @@ public class DexWebSecurityAdapter {
                                                         .permitAll()
                                                         .requestMatchers("/remote/tfe/v2/plans/logs/**").permitAll()
                                                         .requestMatchers("/remote/tfe/v2/applies/logs/**").permitAll()
+                                                        .requestMatchers(HttpMethod.GET, "/remote/tfe/v2/plans/*/logs").permitAll()
+                                                        .requestMatchers(HttpMethod.GET, "/remote/tfe/v2/applies/*/logs").permitAll()
                                                         .requestMatchers("/app/*/*/runs/*").permitAll()
                                                         .requestMatchers("/tofu/index.json").permitAll()
                                                         .anyRequest().authenticated();
