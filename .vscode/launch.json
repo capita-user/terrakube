@@ -9,7 +9,8 @@
             "projectName": "api-server",
             "args": "-Xmx512m -Xms256m -Dcom.sun.net.ssl.checkRevocation=false",
             "envFile": "${workspaceFolder}/.envApi",
-            "preLaunchTask": "setup-java"
+            "preLaunchTask": "setup-java",
+            "vmArgs": "-Dcom.sun.management.jmxremote=false -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
         },
         {
             "type": "java",
@@ -20,7 +21,8 @@
             "projectName": "open-registry",
             "args": "-Xmx512m -Xms256m",
             "envFile": "${workspaceFolder}/.envRegistry",
-            "preLaunchTask": "setup-java"
+            "preLaunchTask": "setup-java",
+            "vmArgs": "-Dcom.sun.management.jmxremote=false -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
         },
         {
             "type": "java",
@@ -31,7 +33,8 @@
             "projectName": "executor",
             "args": "-Xmx512m -Xms256m",
             "envFile": "${workspaceFolder}/.envExecutor",
-            "preLaunchTask": "setup-java"
+            "preLaunchTask": "setup-java",
+            "vmArgs": "-Dcom.sun.management.jmxremote=false -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
         },
         {
             "type": "node",
