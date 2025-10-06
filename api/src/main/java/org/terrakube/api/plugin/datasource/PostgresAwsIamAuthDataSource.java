@@ -1,4 +1,4 @@
-package io.terrakube.api.plugin.datasource;
+package org.terrakube.api.plugin.datasource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.ds.PGSimpleDataSource;
