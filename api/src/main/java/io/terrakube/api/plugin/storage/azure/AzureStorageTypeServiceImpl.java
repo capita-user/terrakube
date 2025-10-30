@@ -45,6 +45,19 @@ public class AzureStorageTypeServiceImpl implements StorageTypeService {
         return response;
     }
 
+
+    @Override
+    public void uploadStepOutput(String organizationId, String jobId, String stepId, byte[] file) {
+        BlobContainerClient contextContainerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME_OUTPUT);
+
+        String blobName = String.format("%s/%s/%s.tfoutput", organizationId, jobId, stepId);
+        log.info("New Output Az Storage: {}", blobName);
+        BlobClient blobClient = contextContainerClient.getBlobClient(blobName);
+
+        BinaryData binaryData = BinaryData.fromBytes(file);
+        blobClient.upload(binaryData, true);
+    }
+
     @Override
     public byte[] getTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId) {
         BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME_STATE);
@@ -57,6 +70,19 @@ public class AzureStorageTypeServiceImpl implements StorageTypeService {
         }
 
         return response;
+    }
+
+    @Override
+    public String uploadTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId, byte[] terraformPlan) {
+        BlobContainerClient contextContainerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME_STATE);
+
+        String planFileName = String.format("%s/%s/%s/%s/terraformLibrary.tfPlan", organizationId, workspaceId, jobId, stepId);
+        log.info("New Plan Az Storage: {}", planFileName);
+        BlobClient blobClient = contextContainerClient.getBlobClient(planFileName);
+
+        BinaryData binaryData = BinaryData.fromBytes(terraformPlan);
+        blobClient.upload(binaryData, true);
+        return blobClient.getBlobUrl();
     }
 
     @Override

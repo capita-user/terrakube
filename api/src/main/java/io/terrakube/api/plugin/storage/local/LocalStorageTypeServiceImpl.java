@@ -39,10 +39,39 @@ public class LocalStorageTypeServiceImpl implements StorageTypeService {
     }
 
     @Override
+    public void uploadStepOutput(String organizationId, String jobId, String stepId, byte[] output) {
+        try {
+            String outputFilePath = String.format(OUTPUT_DIRECTORY, organizationId, jobId, stepId);
+            log.info("Store step output: {}", outputFilePath);
+            File localOutputDirectory = new File(FileUtils.getUserDirectoryPath().concat(FilenameUtils.separatorsToSystem(outputFilePath)));
+            FileUtils.forceMkdir(localOutputDirectory.getParentFile());
+            FileUtils.writeByteArrayToFile(localOutputDirectory, output);
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+    @Override
     public byte[] getTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId) {
         log.info("Searching: /.terraform-spring-boot/local/state/{}/{}/{}/{}/terraformLibrary.tfPlan", organizationId, workspaceId, jobId, stepId);
         String outputFilePath = String.format(STATE_DIRECTORY, organizationId, workspaceId, jobId, stepId);
         return getOutputBytes(outputFilePath);
+    }
+
+    @Override
+    public String uploadTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId, byte[] terraformPlan) {
+        try {
+            String planFile = String.format(STATE_DIRECTORY, organizationId, workspaceId, jobId, stepId);
+            log.info("planFile: {}", planFile);
+            File plan = new File(FileUtils.getUserDirectoryPath().concat(FilenameUtils.separatorsToSystem(planFile)));
+            FileUtils.forceMkdir(plan.getParentFile());
+            FileUtils.writeByteArrayToFile(plan, terraformPlan);
+
+            return planFile;
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            return null;
+        }
     }
 
     @Override

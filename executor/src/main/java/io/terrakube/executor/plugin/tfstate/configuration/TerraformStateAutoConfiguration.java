@@ -20,6 +20,7 @@ import io.terrakube.executor.plugin.tfstate.local.LocalTerraformStateImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
+import io.terrakube.executor.plugin.tfstate.api.ApiTerraformStateImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -144,6 +145,12 @@ public class TerraformStateAutoConfiguration {
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }
+                    break;
+                case ApiTerraformStateImpl:
+                    terraformState = ApiTerraformStateImpl.builder()
+                            .terrakubeClient(terrakubeClient)
+                            .terraformStatePathService(terraformStatePathService)
+                            .build();
                     break;
                 default:
                     terraformState = LocalTerraformStateImpl.builder()

@@ -7,7 +7,11 @@ public interface StorageTypeService {
 
     byte[] getStepOutput(String organizationId, String jobId, String stepId);
 
+    void uploadStepOutput(String organizationId, String jobId, String stepId, byte[] file);
+
     byte[] getTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId);
+
+    String uploadTerraformPlan(String organizationId, String workspaceId, String jobId, String stepId, byte[] terraformPlan);
 
     byte[] getTerraformStateJson(String organizationId, String workspaceId, String stateFileName);
 
